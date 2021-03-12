@@ -3,8 +3,8 @@
     "windowsAuthentication": false,
     "anonymousAuthentication": true,
     "iisExpress": {
-      "applicationUrl": "http://localhost:22195",
-      "sslPort": 44332
+      "applicationUrl": "http://localhost:21675",
+      "sslPort": 44331
     }
   },
   "$schema": "http://json.schemastore.org/launchsettings.json",
@@ -17,10 +17,10 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
-    "PG_Core": {
+    "BankSim": {
       "commandName": "Project",
       "launchBrowser": true,
-      "launchUrl": "api/payments",
+      "launchUrl": "weatherforecast",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },

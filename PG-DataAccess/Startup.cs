@@ -1,22 +1,19 @@
-using BankSim.Bank;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using PG_Core.Controllers;
-using PG_DataAccess.Data;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
+using PG_DataAccess.Data;
+using BankSim.Bank;
 
-namespace PG_Core
+namespace PG_DataAccess
 {
     public class Startup
     {
@@ -43,23 +40,20 @@ namespace PG_Core
 
             services.AddControllers();
 
-            //?
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-
             services.AddSingleton<IMockBank, MockBank>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, PgDbContext db)//, IServiceProvider serviceProvider)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, PgDbContext db)
         {
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
 
-            // Testing only
+            // Testing only - Use Migrations
             db.Database.EnsureCreated();
-            //var context = serviceProvider.GetService<PgDbContext>();
 
             app.UseHttpsRedirection();
 

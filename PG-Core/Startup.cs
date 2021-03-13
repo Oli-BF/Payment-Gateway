@@ -1,4 +1,4 @@
-using BankSim.Bank;
+
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -15,6 +15,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Prometheus;
+using PG_Core.Services.Bank;
 
 namespace PG_Core
 {
@@ -37,29 +39,55 @@ namespace PG_Core
             //services.AddScoped<IMockBank, MockBank>();
 
 
-
-            services.AddDbContext<PgDbContext>(options =>
-                 options.UseSqlServer(Configuration.GetConnectionString("DBConnection")));
-
             services.AddControllers();
+
+            services.AddDbContext<PgDbContext>(options => options
+                .UseSqlServer(Configuration.GetConnectionString("PgDbContext")));
 
             //?
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
             services.AddSingleton<IMockBank, MockBank>();
+
+            services.AddSwaggerGen();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, PgDbContext db)//, IServiceProvider serviceProvider)
         {
+            // Prometheus - This counts the requests for each endpoint and the method.
+            var counter = Metrics.CreateCounter("PgPathCounter", "Counts requests to endpoints", 
+                new CounterConfiguration
+                {
+                    LabelNames = new[] { "method", "endpoint" }
+                });
+
+            app.Use((context, next) =>
+            {
+                counter.WithLabels(context.Request.Method, context.Request.Path).Inc();
+                return next();
+            });
+
+            app.UseMetricServer();
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+
+                app.UseSwagger();
+                app.UseSwaggerUI(c =>
+                {
+                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Payment Gateway API V1");
+                    c.RoutePrefix = string.Empty;
+                });
             }
 
-            // Testing only
-            db.Database.EnsureCreated();
+            // Testing only - Use Migrations
+            //db.Database.EnsureCreated();
             //var context = serviceProvider.GetService<PgDbContext>();
+            
+            // Migrations - Implemented in Program.cs?
+            //db.Database.Migrate();
 
             app.UseHttpsRedirection();
 

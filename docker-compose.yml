@@ -1,0 +1,71 @@
+version: '3.4'
+
+services:
+  # Database
+  db:
+    image: "mcr.microsoft.com/mssql/server:2019-latest"
+    #hostname: pg_sql_server
+    container_name: pg_sql_server
+    ports:
+      - 1433:1433
+    expose:
+      - 1433
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=5g89&Zm8YW573a
+    #volumes:
+      #- sqlsystem:/var/opt/mssql/
+      #- sqldata:/var/opt/sqlserver/data
+      #- sqllog:/var/opt/sqlserver/log
+      #- sqlbackup:/var/opt/sqlserver/backup
+
+  # Payment Gateway
+  pg-core:
+    image: ${DOCKER_REGISTRY-}pgcore
+    container_name: pg_core
+    ports:
+      - 80:80
+      - 443:443
+    build:
+      context: .
+      dockerfile: PG-Core/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=https://+:443;http://+:80
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=kD4AnSjH4etS48
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
+    volumes:
+      - ~/.aspnet/https:/https:ro
+    depends_on:
+      - db
+
+  prometheus:
+    container_name: pg_prometheus
+    image: quay.io/prometheus/prometheus:latest #prom/prometheus
+    restart: always
+    ports:
+      - 9090:9090
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+
+    #prometheus:
+    #  image: quay.io/prometheus/prometheus:latest
+    #  ports:
+    #    - "9090:9090"
+    #  configs:
+    #    - source: prometheus_config
+    #      target: /etc/prometheus/prometheus.yml
+    #  depends_on:
+    #    - web
+    #  networks:
+    #    - inner_net
+
+  grafana: 
+    image: grafana/grafana
+    container_name: pg_grafana
+    #command:
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=P@ssw0rd
+    restart: always
+    ports:
+      - 3000:3000

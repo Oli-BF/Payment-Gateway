@@ -13,6 +13,8 @@ namespace PG_Core.Models
         public string currency { get; set; }
 
         [Required(ErrorMessage = "{0} is Required")]
+        [Range(typeof(decimal), "0", "79228162514264337593543950335", 
+                                ErrorMessage = "Only positive values are allowed")]
         public decimal amount { get; set; }
 
         [Required(ErrorMessage = "{0} is Required")]

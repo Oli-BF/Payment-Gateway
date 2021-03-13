@@ -8,6 +8,7 @@ EXPOSE 443
 FROM mcr.microsoft.com/dotnet/sdk:3.1 AS build
 WORKDIR /src
 COPY ["PG-Core/PG-Core.csproj", "PG-Core/"]
+COPY ["PG-DataAccess/PG-DataAccess.csproj", "PG-DataAccess/"]
 RUN dotnet restore "PG-Core/PG-Core.csproj"
 COPY . .
 WORKDIR "/src/PG-Core"

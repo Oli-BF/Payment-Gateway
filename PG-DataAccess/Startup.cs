@@ -11,7 +11,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using PG_DataAccess.Data;
-using BankSim.Bank;
 
 namespace PG_DataAccess
 {
@@ -41,7 +40,7 @@ namespace PG_DataAccess
             services.AddControllers();
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-            services.AddSingleton<IMockBank, MockBank>();
+            //services.AddSingleton<IMockBank, MockBank>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

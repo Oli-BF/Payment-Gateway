@@ -20,7 +20,6 @@
     "PG_Core": {
       "commandName": "Project",
       "launchBrowser": true,
-      "launchUrl": "api/payments",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },

@@ -1,7 +1,8 @@
-﻿using BankSim.Bank;
-using BankSim.Models;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using PG_Core.Models;
+using PG_Core.Services.Bank;
+using PG_Core.Services.Bank.Models;
 using PG_DataAccess.Data;
 using PG_DataAccess.Models;
 using System;
@@ -16,20 +17,25 @@ namespace PG_Core.Controllers
     {
         private readonly PgDbContext pgDbContext;
         private readonly IMockBank aquiringBank;
+        private readonly ILogger<PaymentController> iLogger;
 
-        public PaymentController(PgDbContext dbContext, IMockBank mockBank)
+        public PaymentController(PgDbContext dbContext, IMockBank mockBank, ILogger<PaymentController> logger)
         {
             pgDbContext = dbContext;
             aquiringBank = mockBank;
+            iLogger = logger;
         }
 
         [HttpGet("{paymentId}")]
         public async Task<ActionResult<ToMerchPayResp>> GetPaymentByIdAsync(Guid paymentId)
         {
+            iLogger.LogInformation("Called Get Payment by ID.");
+
             var paymentRequest = await pgDbContext.paymentRequests.FindAsync(paymentId);
 
             if (paymentRequest == null)
             {
+                iLogger.LogWarning("Payment Request is null, Payment ID cannot be found.");
                 return NotFound();
             }
 
@@ -39,8 +45,11 @@ namespace PG_Core.Controllers
         [HttpPost]
         public async Task<ActionResult<FromBankPayResp>> PostPaymentRequestAsync(FromMerchPayReq paymentRequest)
         {
+            iLogger.LogInformation("Called Post Payment Request.");
+
             if (!ModelState.IsValid)
             {
+                iLogger.LogWarning("Model state is not valid.");
                 return BadRequest(ModelState);
             }
 
@@ -48,10 +57,18 @@ namespace PG_Core.Controllers
             var bankPaymentResponse = aquiringBank.ValidatePaymentAsync(
                 BankPaymentRequest(paymentRequest)).Result;
 
+            if (bankPaymentResponse == null)
+            {
+                iLogger.LogWarning("Bank Payment Response is null.");
+                return NotFound();
+            }
+
             // Add Payment Request to Database
             var payment = DataPaymentRequest(bankPaymentResponse, paymentRequest);
             pgDbContext.paymentRequests.Add(payment);
             await pgDbContext.SaveChangesAsync();
+
+            iLogger.LogInformation("Payment Request saved to Database.");
 
             // Payment Response from the Bank, to the Payment Gateway, to the Merchant
             return BankPaymentResponse(bankPaymentResponse);

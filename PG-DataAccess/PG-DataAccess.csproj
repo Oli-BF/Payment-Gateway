@@ -21,8 +21,4 @@
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="5.0.0" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\BankSim\BankSim.csproj" />
-  </ItemGroup>
-
 </Project>

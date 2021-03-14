@@ -3,9 +3,9 @@ version: '3.4'
 services:
   # Database
   db:
+    container_name: pg_sql_server
     image: "mcr.microsoft.com/mssql/server:2019-latest"
     #hostname: pg_sql_server
-    container_name: pg_sql_server
     ports:
       - 1433:1433
     expose:
@@ -21,8 +21,9 @@ services:
 
   # Payment Gateway
   pg-core:
-    image: ${DOCKER_REGISTRY-}pgcore
     container_name: pg_core
+    image: ${DOCKER_REGISTRY-}pgcore
+    restart: always
     ports:
       - 80:80
       - 443:443
@@ -30,18 +31,33 @@ services:
       context: .
       dockerfile: PG-Core/Dockerfile
     environment:
-      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=https://+:443;http://+:80
       - ASPNETCORE_Kestrel__Certificates__Default__Password=kD4AnSjH4etS48
       - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
     volumes:
       - ~/.aspnet/https:/https:ro
+    links:
+      - seq
     depends_on:
       - db
 
+  seq:
+    container_name: pg_seq
+    image: datalust/seq:latest
+    restart: always
+    ports:
+      - 5341:80
+    environment:
+      - ACCEPT_EULA=Y
+    #links:
+    #  - pg-core
+    #volumes:
+     # - /path/to/seq/data:/data
+
   prometheus:
     container_name: pg_prometheus
-    image: quay.io/prometheus/prometheus:latest #prom/prometheus
+    image: quay.io/prometheus/prometheus:latest
     restart: always
     ports:
       - 9090:9090
@@ -61,11 +77,11 @@ services:
     #    - inner_net
 
   grafana: 
-    image: grafana/grafana
     container_name: pg_grafana
+    image: grafana/grafana
+    restart: always
     #command:
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=P@ssw0rd
-    restart: always
     ports:
       - 3000:3000

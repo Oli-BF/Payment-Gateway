@@ -15,28 +15,27 @@ namespace PG_DataAccess.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
+                .HasAnnotation("ProductVersion", "3.1.13")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
-                .HasAnnotation("ProductVersion", "5.0.4")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
             modelBuilder.Entity("PG_DataAccess.Models.PaymentRequest", b =>
                 {
-                    b.Property<Guid>("paymentId")
+                    b.Property<int>("paymentId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<decimal>("amount")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("cardHolder")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("varchar(8000)");
 
                     b.Property<string>("cardNumberMasked")
                         .IsRequired()
-                        .HasMaxLength(19)
-                        .HasColumnType("nvarchar(19)");
+                        .HasColumnType("varchar(8000)");
 
                     b.Property<string>("currency")
                         .IsRequired()
@@ -47,8 +46,7 @@ namespace PG_DataAccess.Migrations
 
                     b.Property<string>("expiryDate")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasColumnType("varchar(8000)");
 
                     b.Property<bool>("paymentSuccessful")
                         .HasColumnType("bit");
@@ -60,24 +58,24 @@ namespace PG_DataAccess.Migrations
                     b.HasData(
                         new
                         {
-                            paymentId = new Guid("c0bea600-d903-4fad-ba5a-894447f0fdfe"),
+                            paymentId = 1,
                             amount = 100.00m,
-                            cardHolder = "MR JOHN HAMILTON-SMITH",
-                            cardNumberMasked = "************1234",
+                            cardHolder = "m3x7enKi30CiT65R41fH+taXnXiu67EIu84HXFm0pU7UuWKHYpsV+GOs0gDqaVZn",
+                            cardNumberMasked = "8jQxK5V+oSSe/9MDJNpd3jG+jt0lvur6X/+m86sKwXtpB6D3h9OqXON6bh97+UsB",
                             currency = "GBP",
-                            dateCreated = new DateTime(2021, 3, 12, 22, 7, 17, 255, DateTimeKind.Utc).AddTicks(5316),
-                            expiryDate = "06/21",
+                            dateCreated = new DateTime(2021, 3, 14, 0, 46, 21, 785, DateTimeKind.Utc).AddTicks(8272),
+                            expiryDate = "UMVlVjtueb1+UNyclRSMs8qK5xovZX8SnhQ/Fl94E8U=",
                             paymentSuccessful = true
                         },
                         new
                         {
-                            paymentId = new Guid("45dc7403-1bc4-4b49-982f-466bbca8ba73"),
+                            paymentId = 2,
                             amount = 250.00m,
-                            cardHolder = "MS JANE HAMILTON-SMITH",
-                            cardNumberMasked = "************5678",
+                            cardHolder = "ORUpqDkW2L8vkcTL+qgl3QH8qMQ5RVpq9yhXr1KF1EWRcalgFh3UYl9PwfI/x+wD",
+                            cardNumberMasked = "70rmOLl6D/EgdPQjLp4UgnpdeIzvCoQ0q5rGGUKzAnApiveo8z5ea0B1wTiy2QPn",
                             currency = "GBP",
-                            dateCreated = new DateTime(2021, 3, 12, 22, 7, 17, 257, DateTimeKind.Utc).AddTicks(272),
-                            expiryDate = "06/21",
+                            dateCreated = new DateTime(2021, 3, 14, 0, 46, 21, 787, DateTimeKind.Utc).AddTicks(2912),
+                            expiryDate = "wJ1UOefWcFvNtGpxY/4A+WGuOMsk6Bw9GtVxUfcso8s=",
                             paymentSuccessful = true
                         });
                 });

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using PG_Core.Models;
 using PG_Core.Services.Bank;
@@ -6,13 +7,18 @@ using PG_Core.Services.Bank.Models;
 using PG_DataAccess.Data;
 using PG_DataAccess.Models;
 using System;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
+/*
+ * One note about setting up your controllers this way: There is intense debate about whether you should inject a DbContext into your controllers. Many people believe you should abstract the data layer away from the controllers and use models and service classes here rather than entities and contexts. I tend to agree with that philosophy, however there is always a “but.” For this tutorial, it would be okay to inject the context into the controller, however this strategy may fail you one day and you have to write models anyway.
+ */
 namespace PG_Core.Controllers
 {
+    [Route("payment")]
     [ApiController]
-    [Route("payments")]
+    [Authorize]
     public class PaymentController : ControllerBase
     {
         private readonly PgDbContext pgDbContext;
@@ -26,8 +32,9 @@ namespace PG_Core.Controllers
             iLogger = logger;
         }
 
+
         [HttpGet("{paymentId}")]
-        public async Task<ActionResult<ToMerchPayResp>> GetPaymentByIdAsync(Guid paymentId)
+        public async Task<ActionResult<ToMerchPayResp>> GetPaymentByIdAsync(int paymentId)
         {
             iLogger.LogInformation("Called Get Payment by ID.");
 
@@ -41,6 +48,20 @@ namespace PG_Core.Controllers
 
             return MerchPaymentResponse(paymentRequest);
         }
+
+        private static ToMerchPayResp MerchPaymentResponse(PaymentRequest paymentRequest) =>
+            new ToMerchPayResp
+            {
+                paymentId = paymentRequest.paymentId,
+                currency = paymentRequest.currency,
+                amount = paymentRequest.amount,
+                cardNumberMasked = paymentRequest.cardNumberMasked,
+                expiryDate = paymentRequest.expiryDate,
+                cardHolder = paymentRequest.cardHolder,
+                paymentSuccessful = paymentRequest.paymentSuccessful,
+                dateCreated = paymentRequest.dateCreated,
+            };
+
 
         [HttpPost]
         public async Task<ActionResult<FromBankPayResp>> PostPaymentRequestAsync(FromMerchPayReq paymentRequest)
@@ -73,19 +94,6 @@ namespace PG_Core.Controllers
             // Payment Response from the Bank, to the Payment Gateway, to the Merchant
             return BankPaymentResponse(bankPaymentResponse);
         }
-
-        private static ToMerchPayResp MerchPaymentResponse(PaymentRequest paymentRequest) => 
-            new ToMerchPayResp
-            {
-                paymentId = paymentRequest.paymentId,
-                currency = paymentRequest.currency,
-                amount = paymentRequest.amount,
-                cardNumberMasked = paymentRequest.cardNumberMasked,
-                expiryDate = paymentRequest.expiryDate,
-                cardHolder = paymentRequest.cardHolder,
-                paymentSuccessful = paymentRequest.paymentSuccessful,
-                dateCreated = paymentRequest.dateCreated,
-            };
 
         private static FromPgPayReq BankPaymentRequest(FromMerchPayReq fromMerchPayReq) => 
             new FromPgPayReq

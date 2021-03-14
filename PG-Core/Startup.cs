@@ -17,6 +17,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Prometheus;
 using PG_Core.Services.Bank;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace PG_Core
 {
@@ -50,6 +51,16 @@ namespace PG_Core
             services.AddSingleton<IMockBank, MockBank>();
 
             services.AddSwaggerGen();
+
+            // Okta
+            var okta = Configuration.GetSection("Okta").Get<Okta>();
+
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                    .AddJwtBearer(options =>
+                    {
+                        options.Authority = okta.Authority;
+                        options.Audience = okta.Audience;
+                    });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -70,6 +81,15 @@ namespace PG_Core
 
             app.UseMetricServer();
 
+            // To use in production
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Payment Gateway API V1");
+                c.RoutePrefix = string.Empty;
+            });
+
+            // Dev build only
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -92,6 +112,9 @@ namespace PG_Core
             app.UseHttpsRedirection();
 
             app.UseRouting();
+
+            // Okta
+            app.UseAuthentication();
 
             app.UseAuthorization();
 

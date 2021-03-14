@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -9,7 +10,7 @@ namespace PG_Core.Models
     public class FromMerchPayReq
     {
         [Required(ErrorMessage = "{0} is Required")]
-        [DataType(DataType.Currency)]
+        [DataType(DataType.Currency, ErrorMessage = "Currency must be valid type of Currency, i.e. GBP")]
         public string currency { get; set; }
 
         [Required(ErrorMessage = "{0} is Required")]

@@ -10,7 +10,7 @@ namespace PG_Core.Services.Bank.Models
     /// </summary>
     public class ToPgPayResp
     {
-        public Guid paymentId { get; set; }
+        public int paymentId { get; set; }
 
         public bool paymentSuccessful { get; set; }
     }

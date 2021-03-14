@@ -1,4 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.DataEncryption;
+using Microsoft.EntityFrameworkCore.DataEncryption.Providers;
 using PG_DataAccess.Models;
 using System;
 using System.Collections.Generic;
@@ -9,20 +11,33 @@ namespace PG_DataAccess.Data
 {
     public class PgDbContext : DbContext
     {
-        public PgDbContext(DbContextOptions<PgDbContext> options) : base(options)
-        {
-        }
+        static private readonly byte[] iv = new byte[] { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+                                           0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F};
+        static private readonly byte[] key = new byte[] { 0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77,
+                                           0x88, 0x99, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF };
+
+        private readonly byte[] _encryptionKey = key;
+        private readonly byte[] _encryptionIV = iv;
+        private readonly IEncryptionProvider _provider;
 
         public DbSet<PaymentRequest> paymentRequests { get; set; }
 
+        //[Obsolete]
+        public PgDbContext(DbContextOptions<PgDbContext> options) : base(options)
+        {
+            this._provider = new AesProvider(this._encryptionKey, this._encryptionIV);
+        }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.UseEncryption(this._provider);
+
             base.OnModelCreating(modelBuilder);
 
             // Seed Payment Requests Table
             modelBuilder.Entity<PaymentRequest>().HasData(new PaymentRequest
             {
-                paymentId = Guid.NewGuid(),
+                paymentId = 1,
                 currency = "GBP",
                 amount = 100.00M,
                 cardNumberMasked = "************1234",
@@ -33,13 +48,13 @@ namespace PG_DataAccess.Data
 
             modelBuilder.Entity<PaymentRequest>().HasData(new PaymentRequest
             {
-                paymentId = Guid.NewGuid(),
-                currency = "GBP",
-                amount = 250.00M,
+                paymentId = 2,
+                currency = "USD",
+                amount = 249.99M,
                 cardNumberMasked = "************5678",
                 expiryDate = "06/21",
                 cardHolder = "MS JANE HAMILTON-SMITH",
-                paymentSuccessful = true
+                paymentSuccessful = false
             });
         }
     }

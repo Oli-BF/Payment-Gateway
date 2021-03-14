@@ -7,7 +7,7 @@ namespace PG_Core.Models
 {
     public class FromBankPayResp
     {
-        public Guid paymentId { get; set; }
+        public int paymentId { get; set; }
 
         public bool paymentSuccessful { get; set; }
     }

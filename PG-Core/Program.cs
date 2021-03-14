@@ -30,12 +30,17 @@ namespace PG_Core
 
         public async static Task Main(string[] args)
         {
+            var configuration = new ConfigurationBuilder()
+               .AddJsonFile("appsettings.json")
+               .Build();
+
             Log.Logger = new LoggerConfiguration()
                .Enrich.FromLogContext()
+               .ReadFrom.Configuration(configuration)
                .WriteTo.Console(new RenderedCompactJsonFormatter())
                .WriteTo.Debug(outputTemplate: DateTime.UtcNow.ToString())
                .WriteTo.File("Logs/log.txt", rollingInterval: RollingInterval.Day)
-               .WriteTo.Seq("http://localhost:5341")
+               .WriteTo.Seq("http://seq:5341/")
                .CreateLogger();
 
             var host = CreateHostBuilder(args).Build();

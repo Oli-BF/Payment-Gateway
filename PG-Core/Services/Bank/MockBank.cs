@@ -18,14 +18,14 @@ namespace PG_Core.Services.Bank
                 case 1:
                     bankPaymentResponse = new ToPgPayResp()
                     {
-                        paymentId = Guid.NewGuid(),
+                        paymentId = rnd.Next(10000),
                         paymentSuccessful = true
                     };
                     break;
                 case 2:
                     bankPaymentResponse = new ToPgPayResp()
                     {
-                        paymentId = Guid.NewGuid(),
+                        paymentId = rnd.Next(10000),
                         paymentSuccessful = false
                     };
                     break;

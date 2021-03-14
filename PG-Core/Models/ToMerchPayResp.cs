@@ -8,7 +8,7 @@ namespace PG_Core.Models
 {
     public class ToMerchPayResp
     {
-        public Guid paymentId { get; set; }
+        public int paymentId { get; set; }
 
         public string currency { get; set; }
 

@@ -21,7 +21,7 @@
   * **CVV Number is never stored**
 * **Unit Tests**
 
-## 2.0 - Installation / Use
+## 2.0 - Setup
 
 ### 2.1 - Installation
 

@@ -1,14 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace PG_Core.Models
 {
+    /// <summary>
+    /// Merchant Payment Response model to encapsulate the details returned when requested by the merchant.
+    /// </summary>
     public class ToMerchPayResp
     {
-        public int paymentId { get; set; }
+        public Guid paymentId { get; set; }
 
         public string currency { get; set; }
 

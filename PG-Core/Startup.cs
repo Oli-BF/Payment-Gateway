@@ -1,20 +1,11 @@
-
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using PG_Core.Controllers;
 using PG_DataAccess.Data;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Prometheus;
 using PG_Core.Services.Bank;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -30,29 +21,23 @@ namespace PG_Core
 
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
+        // This method gets called by the runtime. This method is used to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            //services.AddSingleton<IMockBank, MockBank>();
-            //services.AddSingleton<ICustomerRepository, CustomerRepository>();
-
-            //services.AddScoped<PgDbContext, PaymentProcessController>();
-            //services.AddScoped<IMockBank, MockBank>();
-
-
             services.AddControllers();
 
+            // Database Connection - Located in appsettings.json
             services.AddDbContext<PgDbContext>(options => options
                 .UseSqlServer(Configuration.GetConnectionString("PgDbContext")));
 
-            //?
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
             services.AddSingleton<IMockBank, MockBank>();
 
+            // Swagger - API Documentation
             services.AddSwaggerGen();
 
-            // Okta
+            // Okta - OAuth 2.0 - See Okta Class for more Details
             var okta = Configuration.GetSection("Okta").Get<Okta>();
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -63,11 +48,11 @@ namespace PG_Core
                     });
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, PgDbContext db)//, IServiceProvider serviceProvider)
+        // This method gets called by the runtime. This method is used to configure the HTTP request pipeline.
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, PgDbContext db)
         {
             // Prometheus - This counts the requests for each endpoint and the method.
-            var counter = Metrics.CreateCounter("PgPathCounter", "Counts requests to endpoints", 
+            var counter = Metrics.CreateCounter("pg_core_counter", "Counts requests to API endpoints", 
                 new CounterConfiguration
                 {
                     LabelNames = new[] { "method", "endpoint" }
@@ -79,9 +64,10 @@ namespace PG_Core
                 return next();
             });
 
+            // For Prometheus / Grafana
             app.UseMetricServer();
 
-            // To use in production
+            // Swagger
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {
@@ -89,29 +75,25 @@ namespace PG_Core
                 c.RoutePrefix = string.Empty;
             });
 
-            // Dev build only
+            // Dev Only!
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-
-                app.UseSwagger();
-                app.UseSwaggerUI(c =>
-                {
-                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Payment Gateway API V1");
-                    c.RoutePrefix = string.Empty;
-                });
             }
 
-            // Testing only - Use Migrations
+            // Testing Only! - Migrations in use for production
             //db.Database.EnsureCreated();
             //var context = serviceProvider.GetService<PgDbContext>();
-            
-            // Migrations - Implemented in Program.cs?
+
+            // Testing Only! - Moved to Program
             //db.Database.Migrate();
 
             app.UseHttpsRedirection();
 
             app.UseRouting();
+
+            // For For Prometheus / Grafana 
+            app.UseHttpMetrics();
 
             // Okta
             app.UseAuthentication();

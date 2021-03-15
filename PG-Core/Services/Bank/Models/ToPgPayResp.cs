@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace PG_Core.Services.Bank.Models
 {
@@ -10,7 +7,7 @@ namespace PG_Core.Services.Bank.Models
     /// </summary>
     public class ToPgPayResp
     {
-        public int paymentId { get; set; }
+        public Guid paymentId { get; set; }
 
         public bool paymentSuccessful { get; set; }
     }

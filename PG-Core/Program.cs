@@ -3,8 +3,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Serilog;
 using Serilog.Formatting.Compact;
@@ -16,24 +14,14 @@ namespace PG_Core
 {
     public class Program
     {
-        //public static void Main(string[] args)
-        //{
-        //    Log.Logger = new LoggerConfiguration()
-        //       .Enrich.FromLogContext()
-        //       .WriteTo.Console(new RenderedCompactJsonFormatter())
-        //       .WriteTo.Debug(outputTemplate: DateTime.UtcNow.ToString())
-        //       .WriteTo.File("Logs/log.txt", rollingInterval: RollingInterval.Day)
-        //       .WriteTo.Seq("http://localhost:5341")
-        //       .CreateLogger();
-        //    CreateHostBuilder(args).Build().Run();
-        //}
-
         public async static Task Main(string[] args)
         {
+            // Serilog Loging Configuration
             var configuration = new ConfigurationBuilder()
                .AddJsonFile("appsettings.json")
                .Build();
 
+            // Serilog and Seq Loging Configuration
             Log.Logger = new LoggerConfiguration()
                .Enrich.FromLogContext()
                .ReadFrom.Configuration(configuration)
@@ -48,6 +36,7 @@ namespace PG_Core
             using var scope = host.Services.CreateScope();
             var services = scope.ServiceProvider;
 
+            // Implemented to print error if SQL Server has an error upon migrating or seeding data. 
             try
             {
                 var dbContext = services.GetRequiredService<PgDbContext>();

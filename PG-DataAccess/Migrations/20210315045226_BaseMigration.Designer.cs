@@ -10,7 +10,7 @@ using PG_DataAccess.Data;
 namespace PG_DataAccess.Migrations
 {
     [DbContext(typeof(PgDbContext))]
-    [Migration("20210314004622_BaseMigration")]
+    [Migration("20210315045226_BaseMigration")]
     partial class BaseMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -23,34 +23,40 @@ namespace PG_DataAccess.Migrations
 
             modelBuilder.Entity("PG_DataAccess.Models.PaymentRequest", b =>
                 {
-                    b.Property<int>("paymentId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                    b.Property<Guid>("paymentId")
+                        .HasColumnName("id")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<decimal>("amount")
+                        .HasColumnName("amount")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("cardHolder")
                         .IsRequired()
-                        .HasColumnType("varchar(8000)");
+                        .HasColumnName("card_holder")
+                        .HasColumnType("varchar(100)");
 
                     b.Property<string>("cardNumberMasked")
                         .IsRequired()
-                        .HasColumnType("varchar(8000)");
+                        .HasColumnName("card_number")
+                        .HasColumnType("varchar(100)");
 
                     b.Property<string>("currency")
                         .IsRequired()
+                        .HasColumnName("currency")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("dateCreated")
+                        .HasColumnName("date_created")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("expiryDate")
                         .IsRequired()
-                        .HasColumnType("varchar(8000)");
+                        .HasColumnName("card_expiry_date")
+                        .HasColumnType("varchar(100)");
 
                     b.Property<bool>("paymentSuccessful")
+                        .HasColumnName("payment_successful")
                         .HasColumnType("bit");
 
                     b.HasKey("paymentId");
@@ -60,25 +66,25 @@ namespace PG_DataAccess.Migrations
                     b.HasData(
                         new
                         {
-                            paymentId = 1,
+                            paymentId = new Guid("3c7dea5c-fa0c-4584-b248-fd941368cea6"),
                             amount = 100.00m,
-                            cardHolder = "t8BRVU02Fmrx4jxCjktAZ2g/CcI4pQu4m8+UIIVfrODe87/2xY2kDwRemVLWTvfD",
-                            cardNumberMasked = "mlvUqlp9sKZ79HB73DL0bpWkefQ3qlTlsobhR7SER5wiA4x3JWZ3fN/M0rEQ2XUm",
+                            cardHolder = "c/y3K1Bsn7e8d2mQcBGvUmGB/o43tflopzgJejcktxLZR4qPZ8Z6pN5hW/x+9DVM",
+                            cardNumberMasked = "DSMpzXhEt3kxEWcymd7EJUeFXsVTFbu5eEmuS/NwZY+Ey0BwGPDWuwCm/A9oBVMy",
                             currency = "GBP",
-                            dateCreated = new DateTime(2021, 3, 14, 0, 46, 21, 785, DateTimeKind.Utc).AddTicks(8272),
-                            expiryDate = "j/2UsMlOPjExgsV9ZVGQe289S+KSnP7uc6ECrk/vtQE=",
+                            dateCreated = new DateTime(2021, 3, 15, 4, 52, 26, 244, DateTimeKind.Utc).AddTicks(48),
+                            expiryDate = "pASEMVGtOT/IelZVaTNbS7Z3XlyXfg4Sd4JLkN5vTNc=",
                             paymentSuccessful = true
                         },
                         new
                         {
-                            paymentId = 2,
-                            amount = 250.00m,
-                            cardHolder = "dVFysYj8g+orcOJXkNox67wUofDxoG6eJI7DiLaLIdGLxutLehL/9BeFom7tsh+B",
-                            cardNumberMasked = "YuAhD0n/eK8FzY8fkJGim3biItV35azxny/FOHUgtHs8l5dkW5T4WQgAE/NjvO0C",
-                            currency = "GBP",
-                            dateCreated = new DateTime(2021, 3, 14, 0, 46, 21, 787, DateTimeKind.Utc).AddTicks(2912),
-                            expiryDate = "RPSDgJBOfQXet/indJFR2o1R0qVxAz4bCioRnUiEeeI=",
-                            paymentSuccessful = true
+                            paymentId = new Guid("d2e52fea-98ad-4578-a418-ce117f78f45d"),
+                            amount = 249.99m,
+                            cardHolder = "0kD2E8MGJs7LEENwYH3DB4F3gsyGt8F1ddfr6lEN/M9OrgWKjxW2KIZKsr/VJMgV",
+                            cardNumberMasked = "XuoavkQyp5TAuaeCir1xwDkx8QfrvPdxNLtjPcF6iUROjxYBjSlX96gwyNlNiwtO",
+                            currency = "USD",
+                            dateCreated = new DateTime(2021, 3, 15, 4, 52, 26, 245, DateTimeKind.Utc).AddTicks(6495),
+                            expiryDate = "bqZY4oeLiIhVfETgSZkHgOs77+6JRNvEkQf1MqQg2Dc=",
+                            paymentSuccessful = false
                         });
                 });
 #pragma warning restore 612, 618

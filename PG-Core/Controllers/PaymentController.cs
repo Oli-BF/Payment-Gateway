@@ -7,24 +7,29 @@ using PG_Core.Services.Bank.Models;
 using PG_DataAccess.Data;
 using PG_DataAccess.Models;
 using System;
-using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-/*
- * One note about setting up your controllers this way: There is intense debate about whether you should inject a DbContext into your controllers. Many people believe you should abstract the data layer away from the controllers and use models and service classes here rather than entities and contexts. I tend to agree with that philosophy, however there is always a “but.” For this tutorial, it would be okay to inject the context into the controller, however this strategy may fail you one day and you have to write models anyway.
- */
 namespace PG_Core.Controllers
 {
+    /// <summary>
+    /// This Class is the Payment Controller.
+    /// </summary>
     [Route("payment")]
     [ApiController]
     [Authorize]
     public class PaymentController : ControllerBase
     {
+        // Field Variables
         private readonly PgDbContext pgDbContext;
         private readonly IMockBank aquiringBank;
         private readonly ILogger<PaymentController> iLogger;
 
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="dbContext"></param>
+        /// <param name="mockBank"></param>
+        /// <param name="logger"></param>
         public PaymentController(PgDbContext dbContext, IMockBank mockBank, ILogger<PaymentController> logger)
         {
             pgDbContext = dbContext;
@@ -32,9 +37,14 @@ namespace PG_Core.Controllers
             iLogger = logger;
         }
 
-
+        /// <summary>
+        /// GetPaymentByIdAsync is the GET request for merchants requesting payment details of a
+        /// particular payment.
+        /// </summary>
+        /// <param name="paymentId"></param>
+        /// <returns> Merchant Payment Response as a paymentRequestan object. </returns>
         [HttpGet("{paymentId}")]
-        public async Task<ActionResult<ToMerchPayResp>> GetPaymentByIdAsync(int paymentId)
+        public async Task<ActionResult<ToMerchPayResp>> GetPaymentByIdAsync(Guid paymentId)
         {
             iLogger.LogInformation("Called Get Payment by ID.");
 
@@ -49,6 +59,11 @@ namespace PG_Core.Controllers
             return MerchPaymentResponse(paymentRequest);
         }
 
+        /// <summary>
+        /// Helper method for GetPaymentByIdAsync.
+        /// </summary>
+        /// <param name="paymentRequest"></param>
+        /// <returns> A merchant payment request as a ToMerchPayResp object. </returns>
         private static ToMerchPayResp MerchPaymentResponse(PaymentRequest paymentRequest) =>
             new ToMerchPayResp
             {
@@ -62,7 +77,12 @@ namespace PG_Core.Controllers
                 dateCreated = paymentRequest.dateCreated,
             };
 
-
+        /// <summary>
+        /// PostPaymentRequestAsync is the POST request of merchants wishing to process a
+        /// payment through the payment gateway.
+        /// </summary>
+        /// <param name="paymentRequest"></param>
+        /// <returns> Bank Payment Response as a FromBankPayResp object. </returns>
         [HttpPost]
         public async Task<ActionResult<FromBankPayResp>> PostPaymentRequestAsync(FromMerchPayReq paymentRequest)
         {
@@ -95,6 +115,11 @@ namespace PG_Core.Controllers
             return BankPaymentResponse(bankPaymentResponse);
         }
 
+        /// <summary>
+        /// Helper method for PostPaymentRequestAsync.
+        /// </summary>
+        /// <param name="fromMerchPayReq"></param>
+        /// <returns> Payment gateway payment request as a FromPgPayReq object. </returns>
         private static FromPgPayReq BankPaymentRequest(FromMerchPayReq fromMerchPayReq) => 
             new FromPgPayReq
             {
@@ -106,6 +131,12 @@ namespace PG_Core.Controllers
                 cardHolder = fromMerchPayReq.cardHolder
             };
 
+        /// <summary>
+        /// Helper method for PostPaymentRequestAsync.
+        /// </summary>
+        /// <param name="toPgPayResp"></param>
+        /// <param name="fromMerchPayReq"></param>
+        /// <returns> Payment Request as a PaymentRequest object. </returns>
         private static PaymentRequest DataPaymentRequest(
             ToPgPayResp toPgPayResp, FromMerchPayReq fromMerchPayReq) => 
             new PaymentRequest
@@ -113,14 +144,17 @@ namespace PG_Core.Controllers
                 paymentId = toPgPayResp.paymentId,
                 currency = fromMerchPayReq.currency,
                 amount = fromMerchPayReq.amount,
-                // https://stackoverflow.com/questions/54813746/how-to-mask-first-6-and-last-4-digits-for-a-credit-card-number-in-net - (?<=\d{4}[ -]?\d{2})\d{2}[ -]?\d{4}
-                cardNumberMasked = Regex.Replace(fromMerchPayReq.cardNumber.ToString(), 
-                                                 "[0-9](?=[0-9]{4})", "*"),
+                cardNumberMasked = fromMerchPayReq.cardNumber,
                 expiryDate = fromMerchPayReq.expiryDate,
                 cardHolder = fromMerchPayReq.cardHolder,
                 paymentSuccessful = toPgPayResp.paymentSuccessful
             };
 
+        /// <summary>
+        /// Helper method for PostPaymentRequestAsync.
+        /// </summary>
+        /// <param name="toPgPayResp"></param>
+        /// <returns> Bank Payment Response as a FromBankPayResp object. </returns>
         private static FromBankPayResp BankPaymentResponse(ToPgPayResp toPgPayResp) =>
             new FromBankPayResp
             {

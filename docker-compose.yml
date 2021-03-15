@@ -5,6 +5,7 @@ services:
   db:
     container_name: pg_sql_server
     image: "mcr.microsoft.com/mssql/server:2019-latest"
+    restart: on-failure
     #hostname: pg_sql_server
     ports:
       - 1433:1433
@@ -13,9 +14,8 @@ services:
     environment:
       - ACCEPT_EULA=Y
       - SA_PASSWORD=5g89&Zm8YW573a
-    #volumes:
-      #- sqlsystem:/var/opt/mssql/
-      #- sqldata:/var/opt/sqlserver/data
+    volumes:
+      - sqlvolume:/var/opt/mssql
       #- sqllog:/var/opt/sqlserver/log
       #- sqlbackup:/var/opt/sqlserver/backup
 
@@ -23,7 +23,7 @@ services:
   pg-core:
     container_name: pg_core
     image: ${DOCKER_REGISTRY-}pgcore
-    restart: always
+    restart: on-failure
     ports:
       - 80:80
       - 443:443
@@ -42,46 +42,51 @@ services:
     depends_on:
       - db
 
+  # Seq
   seq:
     container_name: pg_seq
     image: datalust/seq:latest
-    restart: always
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 8G
+        reservations:
+          memory: 8G
     ports:
       - 5341:80
     environment:
       - ACCEPT_EULA=Y
-    #links:
-    #  - pg-core
-    #volumes:
-     # - /path/to/seq/data:/data
+      #- SEQ_FIRSTRUN_ADMINPASSWORDHASH=password
+    volumes:
+      - seq-storage:/data
 
+  # Prometheus
   prometheus:
     container_name: pg_prometheus
     image: quay.io/prometheus/prometheus:latest
-    restart: always
+    restart: unless-stopped
     ports:
       - 9090:9090
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
 
-    #prometheus:
-    #  image: quay.io/prometheus/prometheus:latest
-    #  ports:
-    #    - "9090:9090"
-    #  configs:
-    #    - source: prometheus_config
-    #      target: /etc/prometheus/prometheus.yml
-    #  depends_on:
-    #    - web
-    #  networks:
-    #    - inner_net
-
+  # Grafana
   grafana: 
     container_name: pg_grafana
     image: grafana/grafana
-    restart: always
-    #command:
-    environment:
-      - GF_SECURITY_ADMIN_PASSWORD=P@ssw0rd
+    restart: unless-stopped
     ports:
       - 3000:3000
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana-storage:/var/lib/grafana
+
+volumes:
+  sqlvolume:
+  #sqllog:
+  #sqlbackup:
+  seq-storage:
+  grafana-storage:

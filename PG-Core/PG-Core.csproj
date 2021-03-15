@@ -34,10 +34,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="BankSim\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\PG-DataAccess\PG-DataAccess.csproj" />
   </ItemGroup>
 

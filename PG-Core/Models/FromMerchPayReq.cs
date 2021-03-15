@@ -1,12 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace PG_Core.Models
 {
+    /// <summary>
+    /// Payment Request model to encapsulate the payment request from the merchant.
+    /// </summary>
     public class FromMerchPayReq
     {
         [Required(ErrorMessage = "{0} is Required")]

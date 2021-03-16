@@ -27,18 +27,18 @@
 
 * Clone repository
 
-* As I have authentication implemented (and as such HTTPS is required), a dev cert is required for Docker to run correctly. If you already have one, please change the password and path to your own in the following settings in the docker-compose.yml file.
+* As I have authentication implemented (HTTPS is enforced), a dev cert is required for Docker to run correctly. If you already have one, please change the password and path to your own in the following settings in the docker-compose.yml file.
 
   ```dockerfile
   ASPNETCORE_Kestrel__Certificates__Default__Password=yourpassword
   ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
   ```
 
-* If there is still an issue relating to this, then please run the following commands, but changing the password to your own. Please then follow the steps above again:
+* If there is still a docker HTTPS related issue, then please run the following commands, but changing the password to your own. Please then follow the steps above again:
 
-  ```Powe
+  ```powershell
   dotnet dev-certs https --clean
-  dotnet dev-certs https --trust -ep $env:USERPROFILE\.aspnet\https\aspnetapp.pfx -p YOURPASSWORD
+  dotnet dev-certs https --trust -ep $env:USERPROFILE\.aspnet\https\aspnetapp.pfx -p yourpassword
   ```
 
 * CD into project root and run the following command:

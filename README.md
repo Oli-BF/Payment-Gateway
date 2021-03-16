@@ -4,10 +4,10 @@
 
 * Fully containerized using **Docker** and **Docker Compose**:
   * **Payment Gateway**
-  * **SQL Server** - Implements Persistent Storage
-  * **Seq** - Implements Persistent Storage
+  * **SQL Server** - Implements Persistent Storage (Docker Volumes)
+  * **Seq** - Implements Persistent Storage (Docker Volumes)
   * **Prometheus**
-  * **Grafana** - Implements Persistent Storage
+  * **Grafana** - Implements Persistent Storage (Docker Volumes)
 * **OAuth 2** - Authentication using Okta Developer
 * **Swagger** - API Documentation
 * **Serilog** - Logging 
@@ -19,7 +19,7 @@
   * **Database Encryption** for all card details
   * **Card Number Masking** for storing in database and retrieval by merchants
   * **CVV Number is never stored**
-* **Unit Tests**
+* **Unit Tests** - Using an SQL Lite in Memory Database
 
 ## 2.0 - Setup
 
@@ -119,13 +119,17 @@
   * On the `Import via grafana.com`  enter the code `10427` (again make sure there aren’t any leading or trailing spaces)  and click `load`, some settings should appear and under `prometheus` click the drop down box and select the data source added above, keep the rest of the settings at default and click `Import`. The dashboard should open with the metrics showing. 
   * For metrics just about the controller (such as Requests Received, Error Rate and Request Durations) please follow the above and enter code `10915` instead.
 
+### 2.4 - Tests
+* Tests are run locally using an SQL Lite in Memory Database.
+* To run them all, simply navigate to ./Payment-Gateway/PG-Tests and execute the command `dotnet test`.
+
 ## 3.0 - Improvements
 
 * There are several improvements I would have like to have made, but given the time constraints, some concessions had to be made:
   * With this implementation I have injected my DbContext into my controller however, abstracting the data layer away from the controller and using models and services classes, rather than entities and contexts, would perhaps have provided a better approach.
   * Implement HTTPS properly, across all services, with Lets Encrypt and perhaps with something similar to Lettuce Encrypt: https://github.com/natemcmaster/LettuceEncrypt.
   * The database encryption keys are currently within the code, and I would have liked to have moved them to a secure store such as Azure Blob / AWS KMS or something similar. The same also goes for the DBConnection string.
-  * More thorough and extensive tests.
+  * More thorough and extensive tests - with the addition of moving the tests over to an SQL Server Database instead of an SQL Lite in Memory Database to more realistically represent the production environment. It also would have been nice to be able to run the tests through Docker, like the rest of the application.
   * Basic anti-fraud checks.
   * An API Client.
   * CI / CD Tools.

@@ -130,6 +130,7 @@
   * Implement HTTPS properly, across all services, with Lets Encrypt and perhaps with something similar to Lettuce Encrypt: https://github.com/natemcmaster/LettuceEncrypt.
   * The database encryption keys are currently within the code, and I would have liked to have moved them to a secure store such as Azure Blob / AWS KMS or something similar. The same also goes for the DBConnection string.
   * More thorough and extensive tests - with the addition of moving the tests over to an SQL Server Database instead of an SQL Lite in Memory Database to more realistically represent the production environment. It also would have been nice to be able to run the tests through Docker, like the rest of the application.
+  * Some of the code relating to the additional services could have been implemented in a seperate Middleware class and then called from the Startup class within the Configure method.
   * Basic anti-fraud checks.
   * An API Client.
   * CI / CD Tools.
